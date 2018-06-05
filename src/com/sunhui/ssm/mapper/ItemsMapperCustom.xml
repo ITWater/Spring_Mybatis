@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunhui.ssm.mapper.ItemsMapperCustom" >
+  
+  <sql id="select_sql_where">
+  		<!-- 使用动态sql，通过if判断，进行sql的拼接 -->
+  		<!-- 通过ItemsQueryVo中的itemsCustom属性进行判断 -->
+  		<if test="itemsCustom!=null">
+  			<if test="itemsCustom.name!=null and itemsCustom.name!=''">
+  				items.name like '%${itemsCustom.name}%'
+  			</if>
+  		</if>
+  </sql>	
+  
+  <!--商品的列表查询
+	  parameterType：商品的包装对象（包装了查询条件）
+	  resultType：建议使用扩展的pojo，因为原生的pojo的属性可能不满足需要
+  -->
+  <select id="findItemsList" parameterType="com.sunhui.ssm.pojo.ItemsQueryVo"
+  		   resultType="com.sunhui.ssm.pojo.ItemsCustom">
+  	select items.* from items 
+  	<where>
+  		<include refid="select_sql_where"></include>
+  	</where>
+  </select>
+</mapper>

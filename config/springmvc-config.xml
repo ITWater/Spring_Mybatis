@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- 当前的XML文档版本与字符编码 -->
+<!-- xmlns：自定义标记及XML编写规范的命名空间。 -->
+<!-- xmlns:xsi：指当前XML文档应遵守的W3C国际组织定义的XML编写规范 -->
+<!-- xsi:schemaLocation： 指定某命名空间所使用的schema约束文件路径。 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+		
+<!--配置Handler
+	<bean name="/queryItems.action" class="com.sunhui.ssm.controller.ItemsController"></bean>
+		
+	处理器映射器 
+	将bean的name作为url进行查找，需要在配置Handler时指定beanname(就是url)
+		
+	<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"></bean>
+-->
+	<!-- <bean name="/queryItems" class="com.sunhui.ssm.controller.ItemsController"></bean> -->
+	
+	<!-- 处理器映射器 
+	将bean的name作为url进行查找，需要在配置Handler时指定beanname(就是url) -->
+		
+	<!-- <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"></bean> -->
+	
+	<!-- 处理器适配器 
+	所有的处理器和适配器都实现HandlerAdapter接口 -->
+	
+	<!-- <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>-->
+	
+	<!-- 静态资源解析 -->
+	<mvc:resources location="/js/" mapping="/js/**" />
+	<!-- <mvc:resources location="/img/" mapping="/img/**" /> -->
+	
+	<!-- 组件扫描：指定需要扫描的包 (Controller、Servlet、)
+		  对标记有@Controller的类中标识有@RequestMapping的方法进行映射
+		  在RequestMapping里面定义映射的url
+		  好处：使用注解的映射器不用在xml中配置url和Handler的映射关系
+	-->
+	<context:component-scan base-package="com.sunhui.ssm.controller"></context:component-scan>
+	
+	
+	<!-- 代替了上面的处理器映射器+处理器适配器 (实际开发中使用)-->
+	<mvc:annotation-driven 
+		conversion-service="conversionService"
+		validator="validator">
+	</mvc:annotation-driven>
+	
+	<!-- 视图解析器 
+	解析jsp视图,默认使用的是jstl标签，classpath下得有jstl的包
+	-->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 配置jsp路径的前缀 -->
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<!-- 配置jsp路径的后缀 -->
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	
+	<!-- 自定义参数绑定 --> 
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<!-- 转换器 -->
+		<property name="converters">
+			<list>
+				<bean class="com.sunhui.ssm.controller.converter.CustomDateConverter"></bean>
+			</list>
+		</property>
+	</bean>
+	
+	<!--
+		校验器
+	-->
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<!-- hibernate校验器 -->
+		<property name="providerClass" value="org.hibernate.validator.HibernateValidator"></property>
+		<!-- 指定校验使用的资源文件，如果不指定则默认使用classpath下的ValidationMessages.properties -->
+		<property name="validationMessageSource" ref="messageSource"></property>
+	</bean>
+	
+	<!-- 校验错误信息配置文件 -->
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<!-- 资源文件名 -->
+		<property name="basenames">
+			<list>
+				<value>classpath:CustomValidationMessages</value>
+			</list>
+		</property>
+		<!-- 资源文件编码格式 -->
+		<property name="fileEncodings" value="utf-8" />
+		<!-- 对资源文件内容缓存时间，单位秒 -->
+		<property name="cacheSeconds" value="120" />
+	</bean>
+	
+	<!-- 使用Spring配置JedisPoolConfig对象 -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- 最大空闲数 -->
+		<property name="maxIdle" value="50" />
+		<!-- 最大连接数 -->
+		<property name="maxTotal" value="100" />
+		<!-- 最大等待时间 -->
+		<property name="maxWaitMillis" value="20000" />
+	</bean>
+	
+	<!-- 配置JedisConnectionFactory -->
+	<bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<!-- hostName:服务器  默认值是localhost -->
+		<property name="hostName" value="localhsot" />
+		<!-- Port：端口号  默认值是6379 -->
+		<property name="port" value="6379" />
+		<!-- password:连接redis时所需要的密码 -->
+		<property name="password" value="password" />
+		<!-- poolConfig:连接池配置对象 -->
+		<property name="poolConfig" ref="poolConfig" />
+	</bean>
+	
+	<!-- 配置SpringRedisTemplate -->
+	<bean id="jdkSerializationRedisSerializer" 
+	class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer">
+	</bean>
+	
+	<bean id="stringRedisSerializer" 
+	class="org.springframework.data.redis.serializer.StringRedisSerializer">
+	</bean>
+	
+	<bean id="redisTemplate"  class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="keySerializer" ref="stringRedisSerializer" />
+		<property name="valueSerializer" ref="jdkSerializationRedisSerializer" />
+	</bean>
+	
+	
+	<!--
+		上传文件
+	-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件的最大尺寸为5MB -->
+		<property name="maxUploadSize">
+			<value>5242880</value>
+		</property>
+	</bean>
+	
+	<!-- 拦截器 -->
+	<mvc:interceptors>
+		<!-- 多个拦截器，顺序执行 -->
+		<mvc:interceptor>
+			<!-- /**标识所有url包括url路径 -->
+			<mvc:mapping path="/**"/>
+			<bean class="com.sunhui.ssm.controller.interceptor.LoginInterceptor"></bean>
+		</mvc:interceptor>
+		<!-- <mvc:interceptor>
+			/**标识所有url包括url路径
+			<mvc:mapping path="/**"/>
+			<bean class="com.sunhui.ssm.controller.interceptor.HandlerInterceptor1"></bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean class="com.sunhui.ssm.controller.interceptor.HandlerInterceptor2"></bean>
+		</mvc:interceptor> -->
+	</mvc:interceptors>
+</beans>

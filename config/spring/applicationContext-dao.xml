@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns:tx="http://www.springframework.org/schema/tx" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+        
+        <!-- 加载db.properties文件中的内容，db.properties中的key值要有一定的特殊性 -->
+        <context:property-placeholder location="classpath:db.properties"/>
+        
+        <!-- 数据源：dbcp -->
+        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        	<!-- 配置数据库驱动 -->
+	         <property name="driverClassName" value="${jdbc.driver}" />
+	         <!-- 配置数据库url地址 -->
+	         <property name="url" value="${jdbc.url}" />
+	         <!-- 配置用户名 -->
+	         <property name="username" value="${jdbc.username}" />
+	         <!-- 配置用户密码 -->
+	         <property name="password" value="${jdbc.password}" />
+	         <!-- 最大活动链接数 -->
+	         <property name="maxActive" value="10" />
+	         <!--最大空闲数，数据库连接的最大空闲时间。超过空闲时间，数据库连接将被标记为不可用，
+	        	 然后被释放。设为0表示无限制。 
+	        	-->
+	         <property name="maxIdle" value="5" />
+        </bean>
+        
+        <!-- 配置SqlSessionFactory -->
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        	<!-- 配置数据库连接池 -->
+        	<property name="dataSource" ref="dataSource"></property>
+        	<!-- 加载mybatis的全局配置文件 -->
+        	<property name="configLocation" value="classpath:mybatis/SqlMapConfig.xml"></property>
+        </bean>
+        
+        <!-- 配置mapper扫描器 -->
+        <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> 
+        	<!-- 扫描包路径 -->
+        	<property name="basePackage" value="com.sunhui.ssm.mapper"></property>
+        	<!--  -->
+        	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        </bean>
+</beans>

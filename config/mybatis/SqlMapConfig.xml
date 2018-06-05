@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	
+	<!-- 批量定义别名 （常用）
+		  批量定义时别名默认为类名（大小写均可）
+	-->
+	
+	<typeAliases>
+		<package name="com.sunhui.ssm.pojo"/>
+	</typeAliases>
+
+    
+    
+    <!-- 引入mapper映射文件 -->
+    <mappers>
+    	
+    	<!--
+    		这里Spring和mybatis整合，不需要在这里配置扫描mapper接口了
+    	 -->
+    	<!-- <package name="com.sunhui.mybatis.mapper"/> -->
+    </mappers>
+</configuration>
