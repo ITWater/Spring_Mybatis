@@ -1,0 +1,2 @@
+# Spring_Mybatis
+这是本人看ssm教学视频后做的一个小project，涵盖了ssm框架的基本知识，并使用半注解的形式进行整合！
